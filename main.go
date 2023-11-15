@@ -9,7 +9,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/theme-ce/gin-mongodb/store"
+	"github.com/theme-ce/gin-mongodb/app"
+	"github.com/theme-ce/gin-mongodb/app/product"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -27,7 +28,10 @@ func main() {
 	defer stop()
 
 	router := gin.Default()
-	router.POST("/addproduct/:name", store.NewMongoDBStore(coll).InsertProduct)
+
+	productStore := product.NewProductStore(coll)
+	productHandler := product.NewProductHandler(productStore)
+	router.POST("/addproduct/:name", app.NewGinHandler(productHandler.InsertProduct))
 
 	srv := &http.Server{
 		Addr:    ":8080",
