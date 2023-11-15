@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/theme-ce/gin-mongodb/product"
+	"github.com/theme-ce/gin-mongodb/store"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -20,13 +20,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	coll := client.Database("products").Collection("products")
 
 	// Create context that listens for the interrupt signal from the OS.
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
 	router := gin.Default()
-	router.POST("/addproduct/:name", product.NewProductHandler(client).InsertProduct)
+	router.POST("/addproduct/:name", store.NewMongoDBStore(coll).InsertProduct)
 
 	srv := &http.Server{
 		Addr:    ":8080",
