@@ -4,6 +4,7 @@ import "github.com/theme-ce/gin-mongodb/app"
 
 type productStorer interface {
 	NewProduct(*Product)
+	GetAllProduct() []Product
 }
 
 type ProductHandler struct {
@@ -19,4 +20,9 @@ func (p *ProductHandler) InsertProduct(ctx app.Context) {
 		ProductName: ctx.Params("name"),
 	}
 	p.storer.NewProduct(&product)
+}
+
+func (p *ProductHandler) GetAllProduct(ctx app.Context) {
+	products := p.storer.GetAllProduct()
+	ctx.OK(products)
 }

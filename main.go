@@ -21,7 +21,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	coll := client.Database("products").Collection("products")
+	db := client.Database("products")
 
 	// Create context that listens for the interrupt signal from the OS.
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
@@ -29,9 +29,10 @@ func main() {
 
 	router := gin.Default()
 
-	productStore := product.NewProductStore(coll)
+	productStore := product.NewProductStore(db)
 	productHandler := product.NewProductHandler(productStore)
 	router.POST("/addproduct/:name", app.NewGinHandler(productHandler.InsertProduct))
+	router.GET("/products", app.NewGinHandler(productHandler.GetAllProduct))
 
 	srv := &http.Server{
 		Addr:    ":8080",
